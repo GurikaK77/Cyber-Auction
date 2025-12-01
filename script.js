@@ -26,8 +26,6 @@ const questions = [
     { q: "რამდენი წიგნია 'ჰარი პოტერის' ძირითად სერიაში?", a: 7 },
     { q: "რამდენი მოთამაშეა ფეხბურთის გუნდში (მოედანზე)?", a: 11 },
     { q: "რამდენი ნულია მილიონში?", a: 6 },
-    { q: "რამდენი თვეა წელიწადში, რომელსაც 28 დღე აქვს?", a: 12 }, // (ყველა თვეს აქვს 28 დღე მაინც - ეს ჩამჭრელი კითხვაა, მაგრამ პასუხი 12-ია თუ ლოგიკურად მივუდგებით, ან 1 თუ მხოლოდ თებერვალს ვგულისხმობთ. მოდი სტანდარტულად 1 დავწეროთ, ან შევცვალოთ კითხვა).
-    // მოდი შევცვალოთ უფრო ზუსტით:
     { q: "რამდენი მხარე აქვს კუბს?", a: 6 },
     { q: "რამდენი გული აქვს რვაფეხას?", a: 3 },
     { q: "რამდენი ფერისგან შედგება ცისარტყელა?", a: 7 },
@@ -36,7 +34,7 @@ const questions = [
     { q: "რომელ წელს დაეშვა ადამიანი მთვარეზე (აპოლო 11)?", a: 1969 },
     { q: "რამდენი უჯრაა ჭადრაკის დაფაზე?", a: 64 },
     { q: "რომელ წელს დაარსდა 'Google'?", a: 1998 },
-    { q: "რამდენი ძვალია ზვიგენის სხეულში?", a: 0 }, // (ხრტილები აქვთ)
+    { q: "რამდენი ძვალია ზვიგენის სხეულში?", a: 0 }, 
     { q: "რომელ წელს მოხდა დიდგორის ბრძოლა?", a: 1121 },
     { q: "რამდენი მეტრია ერთი საზღვაო მილი?", a: 1852 },
     { q: "რომელ წელს დაარსდა თბილისის სახელმწიფო უნივერსიტეტი?", a: 1918 },
@@ -60,7 +58,7 @@ const questions = [
     { q: "რამდენი საფეხურია იმპაიერ სტეიტ ბილდინგში (სართულებზე ასასვლელად)?", a: 1576 },
     { q: "რამდენი გრადუსია მზის ზედაპირის ტემპერატურა (ცელსიუსით)?", a: 5505 },
     { q: "რომელ წელს დაიწყო საფრანგეთის რევოლუცია?", a: 1789 },
-    { q: "რამდენი ხერხემალი (მალა) აქვს ჟირაფს კისერში?", a: 7 }, // (იგივე რაც ადამიანს)
+    { q: "რამდენი ხერხემალი (მალა) აქვს ჟირაფს კისერში?", a: 7 }, 
     { q: "რამდენი კილომეტრია დედამიწის ეკვატორის სიგრძე?", a: 40075 },
     { q: "რამდენი წამია ერთ საათში?", a: 3600 },
     { q: "რომელ წელს გამოვიდა ფილმი 'ნათლია' (The Godfather)?", a: 1972 },
@@ -70,13 +68,13 @@ const questions = [
 ];
 
 // --- STATE ---
-let players = []; // {name, money, currentGuess, currentBetAmount, currentBetTargetIndex}
+let players = []; 
 let usedQuestions = [];
 let currentQuestion = null;
 let currentRound = 1;
 let totalRounds = 5;
 let currentPlayerIndex = 0;
-let sortedGuesses = []; // [{playerIndex, value}, ...]
+let sortedGuesses = []; 
 
 // --- INIT ---
 window.onload = function() {
@@ -102,6 +100,11 @@ function showSection(id) {
     const logo = document.getElementById('logoArea');
     if(id === 'setupSection') logo.style.display = 'block';
     else logo.style.display = 'none';
+    
+    // --- SCROLL FIX: გადასვლისას სქროლი ადის მაღლა ---
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0; // For Safari
+    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE
 }
 
 // --- PLAYERS ---
@@ -109,7 +112,7 @@ function addPlayer() {
     const input = document.getElementById('playerName');
     const name = input.value.trim();
     if(name && !players.some(p => p.name === name)) {
-        players.push({ name, money: 1000 }); // საწყისი თანხა 1000$
+        players.push({ name, money: 1000 }); 
         input.value = '';
         updatePlayerList();
         savePlayers();
@@ -164,7 +167,6 @@ function startRound() {
     do {
         q = questions[Math.floor(Math.random() * questions.length)];
         attempts++;
-        // Safety break if we run out of questions
         if (attempts > 100) { usedQuestions = []; } 
     } while (usedQuestions.includes(q.q));
     
@@ -185,7 +187,7 @@ function showInputPhase() {
     const p = players[currentPlayerIndex];
     document.getElementById('inputPlayerName').textContent = p.name;
     document.getElementById('answerInput').value = '';
-    document.getElementById('answerInput').focus();
+    // --- KEYBOARD FIX: ამოღებულია .focus(), რომ კლავიატურა ავტომატურად არ გაიხსნას ---
 }
 
 function submitAnswer() {
