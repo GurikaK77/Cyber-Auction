@@ -1,67 +1,77 @@
-const CACHE_NAME = 'cyber-auction-dynamic-v1';
+const CACHE_NAME = 'auction-cyber-fast-v1'; // უნიკალური სახელი ამ პროექტისთვის
 const urlsToCache = [
   '/',
   '/index.html',
-  '/style.css',
+  '/style.css', 
   '/script.js',
   '/manifest.json',
-  '/icons/icon-512x512.png', // დარწმუნდი რომ ეს ფაილი არსებობს
-  // გარე რესურსები (ფონტები)
+  
+  // თქვენს HTML-ში მე-7 ხაზზე მითითებულია ეს ფაილი:
+  '/icons/icon-512x512.png', 
+
+  // გარე რესურსები (ზუსტად ის ლინკები, რაც HTML-შია):
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap'
 ];
 
-// 1. ინსტალაცია (ფაილების პირველადი ჩაწერა)
-self.addEventListener('install', event => {
-  self.skipWaiting(); // ახალი ვერსიის მყისიერი გააქტიურება
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
+// 1. ინსტალაცია: ფაილების ჩაწერა (უსაფრთხო მეთოდით)
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(async cache => {
+      console.log('[SW] AUCTION: Cache Opening & Preloading...');
+      // სათითაოდ ვამატებთ, რომ თუ ერთი ფაილი არ გაქვთ (მაგ: აიქონი), სხვები მაინც ჩაიწეროს
+      for (const url of urlsToCache) {
+        try {
+          await cache.add(url);
+        } catch (err) {
+          console.log('[SW] ეს ფაილი ვერ ჩაიწერა (შესაძლოა არ არსებობს):', url);
+        }
+      }
     })
   );
 });
 
-// 2. აქტივაცია (ძველი ქეშების გასუფთავება თუ სახელი შეიცვალა)
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
+// 2. აქტივაცია: ძველი ქეშის წაშლა (თუ ვერსიას შეცვლით)
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
+        keys.map(key => {
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       );
     })
   );
-  self.clients.claim();
+  return self.clients.claim();
 });
 
-// 3. მოთხოვნა (NETWORK FIRST სტრატეგია)
-self.addEventListener('fetch', event => {
-  // მხოლოდ GET მოთხოვნებზე ვრეაგირებთ
-  if (event.request.method !== 'GET') return;
+// 3. FETCH: სწრაფი გახსნა (ჯერ ქეში, მერე ინტერნეტი)
+self.addEventListener('fetch', e => {
+  // მხოლოდ GET მოთხოვნებზე ვმუშაობთ
+  if (e.request.method !== 'GET') return;
 
-  event.respondWith(
-    // ჯერ ვცდილობთ ინტერნეტიდან წამოღებას
-    fetch(event.request)
-      .then(networkResponse => {
-        // თუ ინტერნეტი არის და პასუხი ვალიდურია:
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
-        }
+  e.respondWith(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(e.request).then(cachedResponse => {
+        // 1. ვიწყებთ ინტერნეტიდან წამოღებას (რომ ქეში განახლდეს)
+        const fetchPromise = fetch(e.request)
+          .then(networkResponse => {
+            // თუ ინტერნეტიდან წარმატებით წამოვიდა, ვაახლებთ ქეშს
+            if(networkResponse && networkResponse.status === 200) {
+               cache.put(e.request, networkResponse.clone());
+            }
+            return networkResponse;
+          })
+          .catch(() => {
+             // ინტერნეტი არ არის? არაუშავს.
+             console.log('Offline mode: network fetch failed');
+          });
 
-        // ვაახლებთ ქეშს ახალი ვერსიით (რომ შემდეგ ოფლაინზე ახალი იყოს)
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-
-        return networkResponse;
-      })
-      .catch(() => {
-        // თუ ინტერნეტი გათიშულია, ვიღებთ ქეშიდან
-        return caches.match(event.request);
-      })
+        // 2. ვუბრუნებთ მომხმარებელს პასუხს:
+        // თუ ქეშშია - ეგრევე ქეშს (სისწრაფისთვის), თუ არა - ველოდებით ინტერნეტს
+        return cachedResponse || fetchPromise;
+      });
+    })
   );
 });
