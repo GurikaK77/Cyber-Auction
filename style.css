@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+:root {
+    --bg-dark: #050510;
+    --neon-purple: #bc13fe;
+    --neon-blue: #00f3ff;
+    --neon-gold: #ffd700;
+    --neon-green: #39ff14;
+    --neon-red: #ff003c;
+    --text-main: #ffffff;
+    --glass-bg: rgba(20, 20, 35, 0.85);
+    --border: 1px solid rgba(255, 255, 255, 0.1);
+    --radius: 15px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+        linear-gradient(0deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
+    color: var(--text-main); font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+}
+
+/* Particles */
+.particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.particle { position: absolute; background: var(--neon-gold); width: 2px; height: 2px; opacity: 0.3; animation: float 10s infinite; }
+@keyframes float { 0% { transform: translateY(100vh); } 100% { transform: translateY(-100vh); } }
+
+/* Layout */
+.container { max-width: 600px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
+.logo h1 { font-family: 'Cinzel', serif; font-size: 3rem; text-align: center; color: var(--neon-gold); text-shadow: 0 0 15px var(--neon-gold); margin-bottom: 20px; }
+
+.section { 
+    background: var(--glass-bg); border: 1px solid var(--neon-gold); border-radius: var(--radius); 
+    padding: 25px; margin-bottom: 20px; display: none; backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+.section.active { display: block; animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Shared UI */
+#inputSection.active, #bettingSection.active, #resultSection.active, #gameOverSection.active {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+#inputSection.active ~ #logoArea, #bettingSection.active ~ #logoArea, #resultSection.active ~ #logoArea { display: none; }
+
+.turn-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+.round-indicator { color: #888; font-size: 0.9rem; text-transform: uppercase; }
+
+/* --- UPDATED: Bigger Player Name --- */
+.player-turn-small { 
+    font-size: 2rem; /* გაზრდილი ზომა */
+    color: var(--neon-blue); 
+    font-weight: bold; 
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); /* ნათება */
+}
+
+.balance-display { font-size: 1.2rem; color: var(--neon-gold); font-family: 'Orbitron', sans-serif; }
+
+/* Buttons & Inputs */
+.btn {
+    width: 100%; padding: 15px; background: transparent; border: 2px solid var(--neon-blue); color: white;
+    font-family: 'Orbitron', sans-serif; font-size: 1.1rem; border-radius: 50px; cursor: pointer; transition: 0.3s;
+    display: inline-flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase;
+}
+.btn:hover { background: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); color: black; }
+.btn-gold { border-color: var(--neon-gold); color: var(--neon-gold); }
+.btn-gold:hover { background: var(--neon-gold); box-shadow: 0 0 20px var(--neon-gold); color: black; }
+.btn-gold:disabled { border-color: #555; color: #555; background: transparent; box-shadow: none; cursor: not-allowed; }
+.btn-secondary { border-color: #666; color: #ccc; } .btn-secondary:hover { background: #444; color: white; }
+
+input, select { width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 10px; color: white; font-size: 1.1rem; margin-bottom: 10px; text-align: center; }
+.input-with-button { display: flex; gap: 10px; margin-bottom: 20px; }
+
+/* --- UPDATED: Config Spacing --- */
+.config-mini {
+    margin-top: 15px; /* ჩამოწეულია დაბლა */
+}
+
+/* Question Card */
+.question-card { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; width: 100%; margin-bottom: 20px; border-left: 3px solid var(--neon-purple); }
+.question-icon { font-size: 2rem; color: var(--neon-purple); margin-bottom: 10px; }
+.question-text { font-size: 1.3rem; line-height: 1.4; font-weight: bold; }
+
+/* --- UPDATED: Input Area Spacing --- */
+.input-area {
+    width: 100%;
+    margin-bottom: 30px; /* ღილაკი ჩამოიწია დაბლა */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* ტექსტსა და ინპუტს შორის დაშორება */
+}
+.input-area label {
+    font-size: 1.1rem;
+    color: var(--neon-blue);
+}
+
+/* Betting Grid */
+/* --- UPDATED: Betting Info Spacing --- */
+.betting-info { 
+    margin-bottom: 25px; /* დაშორება ქარდებთან */
+    font-size: 1.1rem;
+    color: #ccc;
+}
+
+.answers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin-bottom: 20px; }
+.answer-card { 
+    background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: 0.3s;
+}
+.answer-card:hover { background: rgba(255,255,255,0.1); }
+.answer-card.selected { border-color: var(--neon-gold); background: rgba(255, 215, 0, 0.1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+.answer-val { font-size: 1.5rem; font-family: 'Orbitron', sans-serif; color: var(--text-main); }
+.answer-owner { font-size: 0.8rem; color: #888; }
+
+/* Bet Controls */
+.bet-controls { width: 100%; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; animation: slideUp 0.3s ease; }
+.selected-answer-display { margin-bottom: 10px; color: var(--neon-gold); }
+.bet-input-group { display: flex; gap: 5px; margin-bottom: 10px; }
+.btn-bet-amount { flex: 1; padding: 8px; background: rgba(255,215,0,0.1); border: 1px solid var(--neon-gold); color: var(--neon-gold); border-radius: 5px; cursor: pointer; }
+.btn-bet-amount:hover { background: var(--neon-gold); color: black; }
+
+/* Results */
+.correct-answer-display { margin-bottom: 30px; animation: pulse 2s infinite; }
+.ca-label { font-size: 0.9rem; text-transform: uppercase; color: #888; }
+.ca-value { font-size: 4rem; font-family: 'Orbitron', sans-serif; color: var(--neon-green); text-shadow: 0 0 20px var(--neon-green); }
+
+.winner-announce { font-size: 1.2rem; margin-bottom: 20px; line-height: 1.5; }
+.highlight-name { color: var(--neon-gold); font-weight: bold; }
+
+/* --- UPDATED: Result List Spacing --- */
+.standings-list { 
+    width: 100%; 
+    text-align: left; 
+    margin-bottom: 30px; /* ღილაკი ჩამოიწია დაბლა */
+}
+.standing-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+/* Game Over */
+.winner-trophy { font-size: 5rem; color: var(--neon-gold); margin-bottom: 20px; text-shadow: 0 0 30px var(--neon-gold); }
+#finalWinnerName { font-size: 2.5rem; font-family: 'Cinzel', serif; color: white; margin-top: 10px; }
+#finalWinnerScore { font-size: 1.5rem; color: var(--neon-gold); font-family: 'Orbitron', sans-serif; }
+
+/* Intro & Player List */
+#loadingScreen, #readyScreen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+.ready-content { width: 90%; max-width: 500px; padding: 30px; background: var(--glass-bg); border-radius: 20px; border: 1px solid var(--neon-gold); }
+.im-ready { margin-top: 30px; }
+
+.player-list { width: 100%; max-height: 300px; overflow-y: auto; margin-bottom: 20px; }
+.player-item { display: flex; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.05); margin-bottom: 8px; border-radius: 10px; border-left: 3px solid var(--neon-gold); }
+
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+@media (max-width: 600px) {
+    .logo h1 { font-size: 2.5rem; }
+    .answers-grid { grid-template-columns: 1fr; }
+    .ca-value { font-size: 3rem; }
+    /* Mobile specific adjustments */
+    .player-turn-small { font-size: 1.8rem; }
+}

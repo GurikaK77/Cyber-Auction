@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Cyber Auction</title>
+    
+    <link rel="icon" type="image/png" href="icons/icon-512x512.png">
+    <link rel="apple-touch-icon" href="icons/icon-512x512.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="loadingScreen">
+        <div class="spinner"></div>
+        <div class="loading-text">ბაზასთან დაკავშირება...</div>
+    </div>
+
+    <div id="readyScreen" style="display:none;">
+        <div class="ready-content">
+            <div class="logo">
+                <h1>AUCTION</h1>
+                <p>Cyber Gambling Quiz</p>
+            </div>
+            <h2>ცოდნა ფულია</h2>
+            <p>გამოიცანი რიცხვები, ან დადე ფსონი მასზე, ვინც იცის. გახდი კიბერ-მილიონერი!</p>
+            <button class="btn im-ready" onclick="showMainPage()">
+                <i class="fas fa-coins"></i> თამაშის დაწყება
+            </button>
+        </div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="container" id="mainContent" style="display:none;">
+        <div class="logo-area" id="logoArea">
+            <div class="logo"><h1>AUCTION</h1></div>
+        </div>
+
+        <div id="setupSection" class="section">
+            <div class="input-with-button">
+                <input type="text" id="playerName" placeholder="მოთამაშის სახელი" />
+                <button class="btn" onclick="addPlayer()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="player-list" id="playerList"></div>
+            
+            <div class="config-mini">
+                <label>რაუნდების რაოდენობა:</label>
+                <select id="roundsCount">
+                    <option value="3">3 რაუნდი</option>
+                    <option value="5" selected>5 რაუნდი</option>
+                    <option value="10">10 რაუნდი</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="startGame()" style="margin-top:20px;">
+                <i class="fas fa-play"></i> დაწყება (1000$ ბონუსი)
+            </button>
+        </div>
+
+        <div id="inputSection" class="section">
+            <div class="turn-header">
+                <div class="round-indicator">რაუნდი <span id="currentRoundDisplay">1</span></div>
+                <div class="player-turn-small" id="inputPlayerName">Player</div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-icon"><i class="fas fa-question-circle"></i></div>
+                <div class="question-text" id="questionText">...</div>
+            </div>
+
+            <div class="input-area">
+                <label>ჩაწერე შენი პასუხი (რიცხვი):</label>
+                <input type="number" id="answerInput" placeholder="0" inputmode="numeric">
+            </div>
+
+            <button class="btn" onclick="submitAnswer()">
+                <i class="fas fa-check"></i> დადასტურება
+            </button>
+        </div>
+
+        <div id="bettingSection" class="section">
+            <div class="turn-header">
+                <div class="player-turn-small" id="bettingPlayerName">Player</div>
+                <div class="balance-display"><span id="bettingBalance">0</span> $</div>
+            </div>
+
+            <div class="betting-info">აირჩიე პასუხი და დადე ფსონი:</div>
+
+            <div class="answers-grid" id="answersGrid">
+                </div>
+
+            <div class="bet-controls" id="betControls" style="display:none;">
+                <div class="selected-answer-display">
+                    არჩეულია: <span id="selectedAnswerValue"></span>
+                </div>
+                <div class="bet-input-group">
+                    <button class="btn-bet-amount" onclick="setBet(100)">100$</button>
+                    <button class="btn-bet-amount" onclick="setBet(500)">500$</button>
+                    <button class="btn-bet-amount" onclick="setBet('all')">ALL IN</button>
+                </div>
+                <input type="number" id="customBet" placeholder="სხვა თანხა" oninput="validateBet()">
+                
+                <button class="btn btn-gold" id="placeBetBtn" onclick="placeBet()" disabled>
+                    <i class="fas fa-gavel"></i> ფსონის დადება
+                </button>
+            </div>
+        </div>
+
+        <div id="resultSection" class="section">
+            <div class="result-title">შედეგები</div>
+            
+            <div class="correct-answer-display">
+                <div class="ca-label">სწორი პასუხი</div>
+                <div class="ca-value" id="correctAnswerDisplay">0</div>
+            </div>
+
+            <div class="winner-announce" id="winnerAnnounce"></div>
+            
+            <div class="standings-list" id="roundStandings"></div>
+
+            <button class="btn" onclick="nextRound()">
+                <i class="fas fa-arrow-right"></i> შემდეგი
+            </button>
+        </div>
+
+        <div id="gameOverSection" class="section">
+            <div class="result-title">თამაში დასრულდა</div>
+            <div class="winner-trophy">
+                <i class="fas fa-trophy"></i>
+                <div id="finalWinnerName"></div>
+                <div id="finalWinnerScore"></div>
+            </div>
+            
+            <div class="controls result-buttons">
+                <button class="btn btn-secondary" onclick="restartGame()">
+                    <i class="fas fa-redo"></i> ახალი თამაში
+                </button>
+                <button class="btn" onclick="showMainPage()">
+                    <i class="fas fa-home"></i> მთავარი
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+        }
+    </script>
+    
+
+
+<script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker დარეგისტრირდა:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker ვერ დარეგისტრირდა:', error);
+                    });
+            });
+        }
+    </script>
+
+
+</body>
+</html>
